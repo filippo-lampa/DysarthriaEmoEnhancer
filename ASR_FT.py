@@ -102,7 +102,7 @@ if __name__ == '__main__':
         learning_rate=1e-5,
         lr_scheduler_type="constant_with_warmup",
         warmup_steps=50,
-        max_steps=2000,  # increase to 4000 if you have your own GPU or a Colab paid plan
+        max_steps=500,  # increase to 4000 if you have your own GPU or a Colab paid plan
         gradient_checkpointing=True,
         fp16=True,
         fp16_full_eval=True,
@@ -124,10 +124,12 @@ if __name__ == '__main__':
         args=training_args,
         model=model,
         train_dataset=dataset["train"],
-        eval_dataset=dataset["test"],
+        eval_dataset=dataset["valid"],
         data_collator=data_collator,
         compute_metrics=compute_metrics,
         tokenizer=processor,
     )
 
     trainer.train()
+
+    trainer.evaluate()
