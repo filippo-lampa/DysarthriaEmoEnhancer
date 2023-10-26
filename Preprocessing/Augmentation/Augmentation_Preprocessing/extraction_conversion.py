@@ -50,8 +50,15 @@ class Extraction:
         return aligned_normal_mel, aligned_dysarthric_mel
 
     def execute(self):
-        for filename in os.listdir(self.dysarthric_audio_folder_path):
+        aligned_normal_mel_list = []
+        aligned_dysarthric_mel_list = []
+        for index, filename in enumerate(os.listdir(self.dysarthric_audio_folder_path)):
+
             dysarthric_audio, dysarthric_sample_rate = librosa.load(self.dysarthric_audio_folder_path + filename)
+
+            if not os.path.exists(self.normal_audio_folder_path + "C" + filename):
+                break
+
             normal_audio, normal_sample_rate = librosa.load(self.normal_audio_folder_path + "C" + filename)
 
             normal_log_mel_spectrogram = self.extract_log_spectrograms(normal_audio, normal_sample_rate)
@@ -63,4 +70,9 @@ class Extraction:
             aligned_normal_mel, aligned_dysarthric_mel = self.align_mcep_and_mel(normal_mcep, dysarthric_mcep,
                                                                             normal_log_mel_spectrogram,
                                                                             dysarthric_log_mel_spectrogram)
-            return aligned_normal_mel, aligned_dysarthric_mel
+            aligned_normal_mel_list.append(aligned_normal_mel)
+            aligned_dysarthric_mel_list.append(aligned_dysarthric_mel)
+
+            print("Preprocessed " + str(index) + " elements")
+
+        return aligned_normal_mel_list, aligned_dysarthric_mel_list

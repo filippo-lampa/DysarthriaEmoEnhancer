@@ -39,12 +39,16 @@ model performance on dysarthric unseen test data.
 from Augmentation_Preprocessing import extraction_conversion, tts_model
 
 if __name__ == '__main__':
+
+    # TODO execute extraction iterating on a list of folder paths to analyse all the dataset's folders
+
     aligner = extraction_conversion.Extraction("../SR_Nor/",
                                                "../SR_Dys/")
 
-    aligned_normal_mel, aligned_dysarthric_mel = aligner.execute()
+    aligned_normal_mel_list, aligned_dysarthric_mel_list = aligner.execute()
 
-    model = tts_model.train(aligned_normal_mel, aligned_dysarthric_mel)
+    # TODO slice arrays into training and validation
+    model = tts_model.train(aligned_normal_mel_list, aligned_dysarthric_mel_list)
 
 
 

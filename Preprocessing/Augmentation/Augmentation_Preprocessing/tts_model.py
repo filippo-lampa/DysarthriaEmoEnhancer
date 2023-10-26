@@ -1,7 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import numpy as np
+from torch.utils.data import DataLoader
+
 
 class VoiceConversionTransformer(nn.Module):
 
@@ -32,27 +33,37 @@ def train(normal_utterances, dysarthric_utterances):
     # Train for 150,000 iterations
     num_iterations = 150000
 
-    n_utterance = ""
-    d_utterance = ""
+    def custom_collate(batch):
+        # Convert a list of lists to a tensor
+        data = torch.tensor(batch)
+        return data
+
+    n_utterances_dataloader = DataLoader(normal_utterances, shuffle=False, batch_size=1, collate_fn=custom_collate)
+    d_utterances_dataloader = DataLoader(dysarthric_utterances, shuffle=False, batch_size=1, collate_fn=custom_collate)
+
+    n_dataiter = iter(n_utterances_dataloader)
+    d_dataiter = iter(d_utterances_dataloader)
+
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
     for iteration in range(num_iterations):
         # Load a time-aligned normal utterance and its corresponding dysarthric utterance
 
-        if len(normal_utterances) > 0 and len(dysarthric_utterances) > 0:
-            n_utterance = np.array(normal_utterances.pop(0), dtype=np.float32)
-            d_utterance = np.array(dysarthric_utterances.pop(0), dtype=np.float32)
-        else:
-            print("No more normal and dysarthric utterances")
+        try:
+            n_utterance = next(n_dataiter)
+            d_utterance = next(d_dataiter)
+        except StopIteration:
+            print("No more utterances")
             break
 
         # Clear the gradients
         optimizer.zero_grad()
 
         # Forward pass
-        output = model(n_utterance)
+        output = model(n_utterance.permute(2, 0, 1))
 
         # Calculate the MSE loss
-        loss = criterion(output, d_utterance)
+        loss = criterion(output, d_utterance.permute(2, 0, 1))
 
         # Backpropagation
         loss.backward()
