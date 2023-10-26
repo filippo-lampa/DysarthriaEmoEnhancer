@@ -45,7 +45,7 @@ if __name__ == '__main__':
     aligner = extraction_conversion.Extraction("../SR_Nor/",
                                                "../SR_Dys/")
 
-    aligned_normal_mel_list, aligned_dysarthric_mel_list = aligner.execute()
+    aligned_normal_mel_list, aligned_dysarthric_mel_list = aligner.execute(3000)
 
     # TODO slice arrays into training and validation
     model = tts_model.train(aligned_normal_mel_list, aligned_dysarthric_mel_list)

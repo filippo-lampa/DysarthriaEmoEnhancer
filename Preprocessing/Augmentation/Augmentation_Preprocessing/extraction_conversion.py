@@ -20,13 +20,16 @@ class Extraction:
         mel_spectrogram = librosa.feature.melspectrogram(y=audio, sr=sample_rate, n_fft=2048,
                                                          hop_length=int(0.01 * sample_rate), n_mels=80)
         log_mel_spectrogram = librosa.power_to_db(mel_spectrogram, ref=np.max)
-        top_db = 120
+
+        # top_db = 120
         # Clip values below -120dB
-        log_mel_spectrogram = np.maximum(log_mel_spectrogram, log_mel_spectrogram.max() - top_db)
+        # log_mel_spectrogram = np.maximum(log_mel_spectrogram, log_mel_spectrogram.max() - top_db)
+
         # Normalize amplitude in the range [0, 1]
-        log_mel_spectrogram = (log_mel_spectrogram - log_mel_spectrogram.min()) / (log_mel_spectrogram.max() -
-                                                                                   log_mel_spectrogram.min())
+        """log_mel_spectrogram = (log_mel_spectrogram - log_mel_spectrogram.min()) / (log_mel_spectrogram.max() -
+                                                                                   log_mel_spectrogram.min())"""
         return log_mel_spectrogram
+
 
     def wav2mcep_numpy(self, current_audio, sample_rate):
         # Use WORLD vocoder to spectral envelope
@@ -49,10 +52,13 @@ class Extraction:
                 aligned_dysarthric_mel[bin_idx].append(dysarthric_log_mel_spectrogram[bin_idx][j])
         return aligned_normal_mel, aligned_dysarthric_mel
 
-    def execute(self):
+    def execute(self, number_of_elements_to_analyse=float("inf")):
         aligned_normal_mel_list = []
         aligned_dysarthric_mel_list = []
         for index, filename in enumerate(os.listdir(self.dysarthric_audio_folder_path)):
+
+            if index == number_of_elements_to_analyse:
+                break
 
             dysarthric_audio, dysarthric_sample_rate = librosa.load(self.dysarthric_audio_folder_path + filename)
 
@@ -76,3 +82,13 @@ class Extraction:
             print("Preprocessed " + str(index) + " elements")
 
         return aligned_normal_mel_list, aligned_dysarthric_mel_list
+
+    def execute_for_generation(self, audio_path):
+
+        audio, sample_rate = librosa.load(audio_path)
+
+        log_mel_spectrogram = self.extract_log_spectrograms(audio, sample_rate)
+
+        print("File preprocessed")
+
+        return log_mel_spectrogram, sample_rate

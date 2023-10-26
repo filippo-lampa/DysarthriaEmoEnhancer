@@ -41,38 +41,53 @@ def train(normal_utterances, dysarthric_utterances):
     n_utterances_dataloader = DataLoader(normal_utterances, shuffle=False, batch_size=1, collate_fn=custom_collate)
     d_utterances_dataloader = DataLoader(dysarthric_utterances, shuffle=False, batch_size=1, collate_fn=custom_collate)
 
-    n_dataiter = iter(n_utterances_dataloader)
-    d_dataiter = iter(d_utterances_dataloader)
-
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
+
+    print("Training...")
 
     for iteration in range(num_iterations):
         # Load a time-aligned normal utterance and its corresponding dysarthric utterance
 
-        try:
-            n_utterance = next(n_dataiter)
-            d_utterance = next(d_dataiter)
-        except StopIteration:
-            print("No more utterances")
-            break
+        for n_utterance, d_utterance in zip(n_utterances_dataloader, d_utterances_dataloader):
 
-        # Clear the gradients
-        optimizer.zero_grad()
+            if iteration >= num_iterations:
+                break
 
-        # Forward pass
-        output = model(n_utterance.permute(2, 0, 1))
+            # Clear the gradients
+            optimizer.zero_grad()
 
-        # Calculate the MSE loss
-        loss = criterion(output, d_utterance.permute(2, 0, 1))
+            # Forward pass
+            output = model(n_utterance.permute(2, 0, 1))
 
-        # Backpropagation
-        loss.backward()
+            # Calculate the MSE loss
+            loss = criterion(output, d_utterance.permute(2, 0, 1))
 
-        # Update the model parameters
-        optimizer.step()
+            # Backpropagation
+            loss.backward()
 
-        if (iteration + 1) % 1000 == 0:
-            print(f'Iteration [{iteration + 1}/{num_iterations}] - Loss: {loss.item()}')
+            # Update the model parameters
+            optimizer.step()
+
+            iteration += 1
+
+            if (iteration + 1) % 20 == 0:
+                print(f'Iteration [{iteration + 1}/{num_iterations}] - Loss: {loss.item()}')
+
+    print("Training completed, saving model...")
 
     # Save the trained model if desired
     torch.save(model.state_dict(), 'voice_conversion_model.pt')
+
+
+def convert(normal_utterance):
+    # Create an instance of the model
+
+    model = VoiceConversionTransformer(model_dim=80, num_heads=8, num_layers=6, num_frequency_bins=80)
+
+    # Load the trained model
+    model.load_state_dict(torch.load('../voice_conversion_model.pt'))
+
+    # Convert the normal utterance to a dysarthric utterance
+    dysarthric_utterance = model(torch.tensor(normal_utterance)[None,:].permute(2, 0, 1))
+
+    return dysarthric_utterance
