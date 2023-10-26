@@ -3,6 +3,7 @@ import contextlib
 import sys
 import wave
 import webrtcvad
+import os
 
 def read_wave(path):
     """Reads a .wav file.
@@ -17,6 +18,7 @@ def read_wave(path):
         assert sample_rate in (8000, 16000, 32000, 48000)
         pcm_data = wf.readframes(wf.getnframes())
         return pcm_data, sample_rate
+
 
 
 def write_wave(path, audio, sample_rate):
@@ -129,20 +131,27 @@ def vad_collector(sample_rate, frame_duration_ms,
 def main(args):
     if len(args) != 2:
         sys.stderr.write(
-            'Usage: silenceremove.py <aggressiveness> <path to wav file>\n')
+            'Usage: silenceremove.py <aggressiveness> <path to wav dir>\n') # aggressiveness, 1 more aggressive 3 less
         sys.exit(1)
-    audio, sample_rate = read_wave(args[1])
-    vad = webrtcvad.Vad(int(args[0]))
-    frames = frame_generator(30, audio, sample_rate)
-    frames = list(frames)
-    segments = vad_collector(sample_rate, 30, 300, vad, frames)
 
-    # Segmenting the Voice audio and save it in list as bytes
-    concataudio = [segment for segment in segments]
+    if not os.path.exists(os.getcwd() + "\\SR"):
+        os.makedirs(os.getcwd() + "\\SR")
 
-    joinedaudio = b"".join(concataudio)
+    for filename in os.listdir(args[1]):
+        try:
+            audio, sample_rate = read_wave(args[1] + filename)
+            vad = webrtcvad.Vad(int(args[0]))
+            frames = frame_generator(30, audio, sample_rate)
+            frames = list(frames)
+            segments = vad_collector(sample_rate, 30, 300, vad, frames)
 
-    write_wave("Non-Silenced-Audio.wav", joinedaudio, sample_rate)
+            # Segmenting the Voice audio and save it in list as bytes
+            concataudio = [segment for segment in segments]
+
+            joinedaudio = b"".join(concataudio)
+
+            write_wave(os.getcwd() + "\\SR\\" + filename.split('.')[0] + "_trimmed.wav", joinedaudio, sample_rate)
+        except Exception as e: print(e)
 
 
 if __name__ == '__main__':

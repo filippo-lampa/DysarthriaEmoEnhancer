@@ -36,3 +36,17 @@ utterances. We use the converted utterances from all 36 models to train and vali
 model performance on dysarthric unseen test data.
 '''
 
+from Augmentation_Preprocessing import extraction_conversion, tts_model
+
+if __name__ == '__main__':
+    aligner = extraction_conversion.Extraction("../SR_Nor/",
+                                               "../SR_Dys/")
+
+    aligned_normal_mel, aligned_dysarthric_mel = aligner.execute()
+
+    model = tts_model.train(aligned_normal_mel, aligned_dysarthric_mel)
+
+
+
+
+

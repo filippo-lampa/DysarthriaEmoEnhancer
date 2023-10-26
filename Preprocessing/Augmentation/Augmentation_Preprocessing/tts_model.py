@@ -1,15 +1,10 @@
-"""Our voice conversion model consists of 6 layers of multihead attention [16]. We implement this model using the
-TransformerEncoderLayer from PyTorch where each multihead attention layer has 8 heads and a model dimension of 80
-(number of frequency bins). To train the voice conversion model, we pass the time-aligned normal utterance through the
-network and apply the mean-squared error (MSE) loss function between the network output and the matching time-aligned
-dysarthric utterance. We use the Adam optimizer, a batch-size of one, and train for 150,000 iterations."""
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
-
+import numpy as np
 
 class VoiceConversionTransformer(nn.Module):
+
     def __init__(self, model_dim, num_heads, num_layers, num_frequency_bins):
         super(VoiceConversionTransformer, self).__init__()
         self.transformer_encoder = nn.TransformerEncoder(
@@ -24,45 +19,49 @@ class VoiceConversionTransformer(nn.Module):
         return x
 
 
-def load_data():
-    pass
+def train(normal_utterances, dysarthric_utterances):
+    # Define the mean squared error (MSE) loss
+    criterion = nn.MSELoss()
 
-# Define the mean squared error (MSE) loss
-criterion = nn.MSELoss()
+    # Create an instance of the model
+    model = VoiceConversionTransformer(model_dim=80, num_heads=8, num_layers=6, num_frequency_bins=80)
 
-# Create an instance of the model
-model = VoiceConversionTransformer(model_dim=80, num_heads=8, num_layers=6, num_frequency_bins=80)
+    # Create an instance of the Adam optimizer
+    optimizer = optim.Adam(model.parameters())
 
-# Create an instance of the Adam optimizer
-optimizer = optim.Adam(model.parameters())
+    # Train for 150,000 iterations
+    num_iterations = 150000
 
-# Set batch size to 1
-batch_size = 1
+    n_utterance = ""
+    d_utterance = ""
 
-# Train for 150,000 iterations
-num_iterations = 150000
+    for iteration in range(num_iterations):
+        # Load a time-aligned normal utterance and its corresponding dysarthric utterance
 
-for iteration in range(num_iterations):
-    # Load a time-aligned normal utterance and its corresponding dysarthric utterance
-    normal_utterance, dysarthric_utterance = load_data()
+        if len(normal_utterances) > 0 and len(dysarthric_utterances) > 0:
+            n_utterance = np.array(normal_utterances.pop(0), dtype=np.float32)
+            d_utterance = np.array(dysarthric_utterances.pop(0), dtype=np.float32)
+        else:
+            print("No more normal and dysarthric utterances")
+            break
 
-    # Clear the gradients
-    optimizer.zero_grad()
+        # Clear the gradients
+        optimizer.zero_grad()
 
-    # Forward pass
-    output = model(normal_utterance)
+        # Forward pass
+        output = model(n_utterance)
 
-    # Calculate the MSE loss
-    loss = criterion(output, dysarthric_utterance)
+        # Calculate the MSE loss
+        loss = criterion(output, d_utterance)
 
-    # Backpropagation
-    loss.backward()
+        # Backpropagation
+        loss.backward()
 
-    # Update the model parameters
-    optimizer.step()
+        # Update the model parameters
+        optimizer.step()
 
-    if (iteration + 1) % 1000 == 0:
-        print(f'Iteration [{iteration + 1}/{num_iterations}] - Loss: {loss.item()}')
+        if (iteration + 1) % 1000 == 0:
+            print(f'Iteration [{iteration + 1}/{num_iterations}] - Loss: {loss.item()}')
 
-# Save the trained model if desired
-torch.save(model.state_dict(), 'voice_conversion_model.pt')
+    # Save the trained model if desired
+    torch.save(model.state_dict(), 'voice_conversion_model.pt')
