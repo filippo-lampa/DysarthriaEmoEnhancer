@@ -45,7 +45,10 @@ def train(normal_utterances, dysarthric_utterances):
 
     print("Training...")
 
-    for iteration in range(num_iterations):
+    iteration = 0
+
+    while iteration < num_iterations:
+
         # Load a time-aligned normal utterance and its corresponding dysarthric utterance
 
         for n_utterance, d_utterance in zip(n_utterances_dataloader, d_utterances_dataloader):
@@ -72,6 +75,10 @@ def train(normal_utterances, dysarthric_utterances):
 
             if (iteration + 1) % 20 == 0:
                 print(f'Iteration [{iteration + 1}/{num_iterations}] - Loss: {loss.item()}')
+
+            if iteration + 1 % 1000 == 0:
+                # Save the trained model
+                torch.save(model.state_dict(), 'voice_conversion_model.pt')
 
     print("Training completed, saving model...")
 

@@ -36,21 +36,25 @@ utterances. We use the converted utterances from all 36 models to train and vali
 model performance on dysarthric unseen test data.
 '''
 
-from Augmentation_Preprocessing import extraction_conversion, tts_model
+from Augmentation_Preprocessing.extraction_conversion import Extraction
+import Augmentation_Preprocessing.tts_model as tts_model
+import os
 
-if __name__ == '__main__':
 
+def main():
     # TODO execute extraction iterating on a list of folder paths to analyse all the dataset's folders
 
-    aligner = extraction_conversion.Extraction("../SR_Nor/",
-                                               "../SR_Dys/")
+    norm_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'SR_Nor'))
+    dys_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'SR_Dys'))
 
-    aligned_normal_mel_list, aligned_dysarthric_mel_list = aligner.execute(3000)
+    aligner = Extraction(norm_path + os.path.sep,
+                         dys_path + os.path.sep)
+
+    aligned_normal_mel_list, aligned_dysarthric_mel_list = aligner.execute(5)
 
     # TODO slice arrays into training and validation
     model = tts_model.train(aligned_normal_mel_list, aligned_dysarthric_mel_list)
 
 
-
-
-
+if __name__ == '__main__':
+    main()
