@@ -8,3 +8,8 @@ soundfile >= 0.12.1
 evaluate >= 0.4.1
 jiwer >= 3.0.3
 accelerate >= 0.23.0
+webrtcvad >= 2.0.10
+fastdtw >= 0.3.4
+pyworld >= 0.3.4
+pysptk >= 0.2.0
+torchaudio

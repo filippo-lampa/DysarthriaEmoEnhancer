@@ -8,6 +8,10 @@
 Dataset/
 Customized_Dataset/
 whisper-small-dv/
+Preprocessing/SR_Dys/
+Preprocessing/SR_Nor/
+
+**.pt
 
 # User-specific stuff
 .idea/**/workspace.xml
