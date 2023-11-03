@@ -64,6 +64,11 @@ def compute_metrics(pred):
 
 if __name__ == '__main__':
 
+    if torch.cuda.is_available():
+        print("using GPU")
+    else:
+        print("using CPU")
+
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
     processor = WhisperProcessor.from_pretrained("openai/whisper-small")
@@ -87,6 +92,8 @@ if __name__ == '__main__':
 
     model = WhisperForConditionalGeneration.from_pretrained("openai/whisper-small")
 
+    model = model.to(device)
+
     # disable cache during training since it's incompatible with gradient checkpointing
     model.config.use_cache = False
 
@@ -96,7 +103,7 @@ if __name__ == '__main__':
     )
 
     training_args = Seq2SeqTrainingArguments(
-        output_dir="./whisper-small-dv",  # name on the HF Hub
+        output_dir="../whisper-small-dv",  # name on the HF Hub
         per_device_train_batch_size=8,
         gradient_accumulation_steps=2,  # increase by 2x for every 2x decrease in batch size
         learning_rate=1e-5,

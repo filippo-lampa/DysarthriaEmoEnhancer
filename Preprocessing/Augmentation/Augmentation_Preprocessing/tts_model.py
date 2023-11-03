@@ -27,6 +27,10 @@ def train(normal_utterances, dysarthric_utterances):
     # Create an instance of the model
     model = VoiceConversionTransformer(model_dim=80, num_heads=8, num_layers=6, num_frequency_bins=80)
 
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+
+    model = model.to(device)
+
     # Create an instance of the Adam optimizer
     optimizer = optim.Adam(model.parameters())
 
@@ -40,8 +44,6 @@ def train(normal_utterances, dysarthric_utterances):
 
     n_utterances_dataloader = DataLoader(normal_utterances, shuffle=False, batch_size=1, collate_fn=custom_collate)
     d_utterances_dataloader = DataLoader(dysarthric_utterances, shuffle=False, batch_size=1, collate_fn=custom_collate)
-
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
     print("Training...")
 
