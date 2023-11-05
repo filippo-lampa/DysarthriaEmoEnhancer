@@ -103,13 +103,13 @@ if __name__ == '__main__':
     )
 
     training_args = Seq2SeqTrainingArguments(
-        output_dir="../whisper-small-dv",  # name on the HF Hub
+        output_dir="../whisper-small-dv",
         per_device_train_batch_size=8,
         gradient_accumulation_steps=2,  # increase by 2x for every 2x decrease in batch size
         learning_rate=1e-5,
         lr_scheduler_type="constant_with_warmup",
         warmup_steps=50,
-        max_steps=500,  # increase to 4000 if you have your own GPU or a Colab paid plan
+        max_steps=500,
         gradient_checkpointing=True,
         fp16=True,
         fp16_full_eval=True,

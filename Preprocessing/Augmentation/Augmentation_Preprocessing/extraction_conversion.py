@@ -21,15 +21,15 @@ class Extraction:
                                                          hop_length=int(0.01 * sample_rate), n_mels=80)
         log_mel_spectrogram = librosa.power_to_db(mel_spectrogram, ref=np.max)
 
-        # top_db = 120
+        top_db = 120
+
         # Clip values below -120dB
-        # log_mel_spectrogram = np.maximum(log_mel_spectrogram, log_mel_spectrogram.max() - top_db)
+        log_mel_spectrogram = np.maximum(log_mel_spectrogram, log_mel_spectrogram.max() - top_db)
 
         # Normalize amplitude in the range [0, 1]
-        """log_mel_spectrogram = (log_mel_spectrogram - log_mel_spectrogram.min()) / (log_mel_spectrogram.max() -
-                                                                                   log_mel_spectrogram.min())"""
+        log_mel_spectrogram = (log_mel_spectrogram - log_mel_spectrogram.min()) / (log_mel_spectrogram.max() -
+                                                                                   log_mel_spectrogram.min())
         return log_mel_spectrogram
-
 
     def wav2mcep_numpy(self, current_audio, sample_rate):
         # Use WORLD vocoder to spectral envelope

@@ -3,6 +3,7 @@ import extraction_conversion
 import librosa.feature
 import soundfile as sf
 import torch
+import numpy as np
 
 if __name__ == '__main__':
     extr = extraction_conversion.Extraction("", "")
@@ -19,7 +20,7 @@ if __name__ == '__main__':
                                                      hop_length=int(0.01 * sample_rate))
 
         # Normalize the audio
-        #audio = audio / np.max(np.abs(audio))
+        audio = audio / np.max(np.abs(audio))
 
         return audio
 

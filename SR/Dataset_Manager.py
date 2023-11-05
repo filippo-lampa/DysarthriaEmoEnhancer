@@ -27,17 +27,16 @@ class Dataset_Manager:
             }
         )
 
-
+        # Note: to correctly load the dataset, either the python file must be run from inside the Customize_Dataset
+        # folder or the paths within the .csv files must be changed to be relative to the Customize_Dataset folder
         sample_data =  load_dataset(
             'csv',
             data_files={
-                'train': './Customized_Dataset/training_data_with_path_custom.csv',
-                'test': './Customized_Dataset/testing_data_with_path_custom.csv',
-                'valid': './Customized_Dataset/validation_data_with_path_custom.csv'
+                'train': 'training_data_with_path_custom.csv',
+                'test': 'testing_data_with_path_custom.csv',
+                'valid': 'validation_data_with_path_custom.csv'
             }
         )
-
-        #sample_data = sample_data.remove_columns(["__index_level_0__"])
 
         sample_data = sample_data.cast(features)
 
