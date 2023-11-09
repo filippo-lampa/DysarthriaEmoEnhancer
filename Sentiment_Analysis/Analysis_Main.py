@@ -17,10 +17,12 @@ def main(audio):
     dataset = Dataset.from_dict({"audio": [audio]}).cast_column("audio", Audio())
     print("Understanding the sentence...")
     result = asr(dataset[0]['audio'].copy(), generate_kwargs={"task": "transcribe"})
+
     print("Analysing the sentiment...")
     anlysr = analyser.SentimentAnalyser()
     print("Sentence recognized: " + result['text'])
     print("--------------------")
+
     return "The sentence is likely to be interpreted as positive" if anlysr.get_sentiment(result['text']) == 1 else \
         "The sentence is likely to be interpreted as negative"
 
@@ -36,7 +38,7 @@ if __name__ == '__main__':
     analysis_interface = gr.Interface(
         main,
         gr.Audio(sources=["upload","microphone"], type="filepath"),
-        gr.Label(num_top_classes=4),
+        gr.Label(num_top_classes=1),
         examples=[
             [os.path.join(os.path.dirname(__file__),"../Customized_Dataset/kaggle/input/dysarthria-and-nondysarthria-"
                                                     "speech-dataset/Dysarthria and Non Dysarthria/Dataset/Male_Dysarthria"
