@@ -4,4 +4,4 @@ Dysarthria is a speech disorder that can make it challenging for individuals to 
 
 #
 
-For a detailed explanation of the methodology, refer to our [paper](Enhancing_Emotional_Awareness_in_Individuals_with_Dysarthria.pdf)
+For a detailed explanation of the methodology, refer to the [paper](Enhancing_Emotional_Awareness_in_Individuals_with_Dysarthria.pdf)
